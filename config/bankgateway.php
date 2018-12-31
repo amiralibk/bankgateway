@@ -8,6 +8,11 @@ return [
     //--------------------------------
     'timezone' => 'Asia/Tehran',
 
+    /**
+     * You can choose IRR | IRT
+     */
+    'currency' => 'IRR',
+
     //--------------------------------
     // Zarinpal gateway
     //--------------------------------

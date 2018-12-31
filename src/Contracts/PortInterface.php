@@ -1,18 +1,19 @@
 <?php
 
-namespace Larabookir\Gateway;
+namespace Roocketir\BankGateway\Contracts;
 
-interface PortInterface
+use Roocketir\BankGateway\Amount;
+
+interface Port
 {
 
     /**
      * This method use for set price in Rial.
      *
-     * @param int $amount in Rial
-     *
+     * @param Amount $amount in Rial
      * @return $this
      */
-    public function set($amount);
+    public function setPrice(Amount $amount);
 
     /**
      * This method use for done everything that necessary before redirect to port.

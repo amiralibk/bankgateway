@@ -1,6 +1,6 @@
 <?php
 
-namespace Larabookir\Gateway\Parsian;
+namespace Roocketir\BankGateway\Parsian;
 
 
 class ParsianResult

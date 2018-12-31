@@ -1,6 +1,6 @@
 <?php
 
-namespace Larabookir\Gateway\Exceptions;
+namespace Roocketir\BankGateway\Exceptions;
 
 class PortNotFoundException extends GatewayException {
 

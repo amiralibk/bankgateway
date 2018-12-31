@@ -1,8 +1,8 @@
 <?php
 
-namespace Larabookir\Gateway\Payline;
+namespace Roocketir\BankGateway\Payline;
 
-use Larabookir\Gateway\Exceptions\BankException;
+use Roocketir\BankGateway\Exceptions\BankException;
 
 class PaylineSendException extends BankException
 {

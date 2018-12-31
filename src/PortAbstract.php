@@ -1,11 +1,11 @@
 <?php
-namespace Larabookir\Gateway;
+namespace Roocketir\BankGateway;
 
 use Illuminate\Support\Facades\Request;
-use Larabookir\Gateway\Enum;
+use Roocketir\BankGateway\Contracts\Port;
 use Carbon\Carbon;
 
-abstract class PortAbstract
+abstract class PortAbstract implements Port
 {
 	/**
 	 * Transaction id
@@ -32,13 +32,6 @@ abstract class PortAbstract
 	protected $config;
 
 	/**
-	 * Port id
-	 *
-	 * @var int
-	 */
-	protected $portName;
-
-	/**
 	 * Reference id
 	 *
 	 * @var string
@@ -48,7 +41,7 @@ abstract class PortAbstract
 	/**
 	 * Amount in Rial
 	 *
-	 * @var int
+	 * @var Amount
 	 */
 	protected $amount;
 
@@ -73,14 +66,14 @@ abstract class PortAbstract
 	 */
 	protected $trackingCode;
 
-	/**
-	 * Initialize of class
-	 *
-	 * @param Config $config
-	 * @param DataBaseManager $db
-	 * @param int $port
-	 */
-	function __construct()
+    /**
+     * Initialize of class
+     *
+     * @internal param Config $config
+     * @internal param DatabaseManager $db
+     * @internal param int $port
+     */
+	public function __construct()
 	{
 		$this->db = app('db');
 	}
@@ -98,17 +91,17 @@ abstract class PortAbstract
 	/**
 	 * @return mixed
 	 */
-	function getTable() 
+    public function getTable()
 	{
-		return $this->db->table($this->config->get('gateway.table'));
+		return $this->db->table($this->config->get('bankgateway.table'));
 	}
 
 	/**
 	 * @return mixed
 	 */
-	function getLogTable()
+	public function getLogTable()
 	{
-		return $this->db->table($this->config->get('gateway.table') . '_logs');
+		return $this->db->table($this->config->get('bankgateway.table') . '_logs');
 	}
 
 	/**
@@ -116,19 +109,9 @@ abstract class PortAbstract
 	 *
 	 * @return int
 	 */
-	function getPortName()
+	public function getPortName()
 	{
-		return $this->portName;
-	}
-
-	/**
-	 * Get port id, $this->port
-	 *
-	 * @return int
-	 */
-	function setPortName($name)
-	{
-		$this->portName = $name;
+		return (new \ReflectionClass($this))->getShortName();
 	}
 
 	/**
@@ -190,22 +173,12 @@ abstract class PortAbstract
 	}
 
 	/**
-	 * Sets price
-	 * @param $price
-	 * @return mixed
-	 */
-	function price($price)
-	{
-		return $this->set($price);
-	}
-
-	/**
 	 * get price
 	 */
-	function getPrice()
+	public function getPrice()
 	{
-		return $this->amount;
-	}
+	    return $this->amount->getTotal();
+    }
 
 	/**
 	 * Return result of payment
@@ -217,7 +190,7 @@ abstract class PortAbstract
 	 *
 	 * @return $this
 	 */
-	function verify($transaction)
+	public function verify($transaction)
 	{
 		$this->transaction = $transaction;
 		$this->transactionId = $transaction->id;
@@ -225,7 +198,7 @@ abstract class PortAbstract
 		$this->refId = $transaction->ref_id;
 	}
 
-	function getTimeId()
+	public function getTimeId()
 	{
 		$genuid = function(){
 			return substr(str_pad(str_replace('.','', microtime(true)),12,0),0,12);
@@ -248,7 +221,8 @@ abstract class PortAbstract
 		$this->transactionId = $this->getTable()->insert([
 			'id' 			=> $uid,
 			'port' 			=> $this->getPortName(),
-			'price' 		=> $this->amount,
+			'price' 		=> $this->amount->getTotal(),
+			'currency'      => $this->amount->getCurrency(),
 			'status' 		=> Enum::TRANSACTION_INIT,
 			'ip' 			=> Request::getClientIp(),
 			'description'	=> $this->description,
@@ -304,12 +278,13 @@ abstract class PortAbstract
 
 	}
 
-	/**
-	 * New log
-	 *
-	 * @param string|int $statusCode
-	 * @param string $statusMessage
-	 */
+    /**
+     * New log
+     *
+     * @param string|int $statusCode
+     * @param string $statusMessage
+     * @return mixed
+     */
 	protected function newLog($statusCode, $statusMessage)
 	{
 		return $this->getLogTable()->insert([

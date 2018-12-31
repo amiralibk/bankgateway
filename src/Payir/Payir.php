@@ -1,12 +1,13 @@
 <?php
-namespace Larabookir\Gateway\Payir;
+namespace Roocketir\BankGateway\Payir;
 
 use Illuminate\Support\Facades\Input;
-use Larabookir\Gateway\Enum;
-use Larabookir\Gateway\PortAbstract;
-use Larabookir\Gateway\PortInterface;
+use Roocketir\BankGateway\Amount;
+use Roocketir\BankGateway\Enum;
+use Roocketir\BankGateway\PortAbstract;
+use Roocketir\BankGateway\Contracts\Port;
 
-class Payir extends PortAbstract implements PortInterface
+class Payir extends PortAbstract implements Port
 {
     /**
      * Address of main CURL server
@@ -34,9 +35,9 @@ class Payir extends PortAbstract implements PortInterface
     /**
      * {@inheritdoc}
      */
-    public function set($amount)
+    public function setPrice(Amount $amount)
     {
-        $this->amount = $amount * 10;
+        $this->amount = $amount;
         return $this;
     }
 
@@ -99,7 +100,7 @@ class Payir extends PortAbstract implements PortInterface
     function getCallback()
     {
         if (!$this->callbackUrl)
-            $this->callbackUrl = $this->config->get('gateway.payir.callback-url');
+            $this->callbackUrl = $this->config->get('bankgateway.payir.callback-url');
         return urlencode($this->makeCallback($this->callbackUrl, ['transaction_id' => $this->transactionId()]));
     }
 
@@ -114,8 +115,8 @@ class Payir extends PortAbstract implements PortInterface
     {
         $this->newTransaction();
         $fields = [
-            'api'      => $this->config->get('gateway.payir.api'),
-            'amount'   => $this->amount,
+            'api'      => $this->config->get('bankgateway.payir.api'),
+            'amount'   => $this->amount->getRiyal(),
             'redirect' => $this->getCallback(),
         ];
 
@@ -172,7 +173,7 @@ class Payir extends PortAbstract implements PortInterface
     protected function verifyPayment()
     {
         $fields = [
-            'api'     => $this->config->get('gateway.payir.api'),
+            'api'     => $this->config->get('bankgateway.payir.api'),
             'transId' => $this->refId(),
         ];
         $ch = curl_init();
@@ -183,6 +184,7 @@ class Payir extends PortAbstract implements PortInterface
         $response = curl_exec($ch);
         $response = json_decode($response, true);
         curl_close($ch);
+
         if ($response['status'] == 1) {
             $this->transactionSucceed();
             $this->newLog(1, Enum::TRANSACTION_SUCCEED_TEXT);

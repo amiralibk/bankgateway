@@ -1,13 +1,15 @@
 <?php
 
-namespace Larabookir\Gateway\Saman;
+namespace Roocketir\BankGateway\Saman;
 
 use Illuminate\Support\Facades\Input;
+use Roocketir\BankGateway\Amount;
+use Roocketir\BankGateway\Enum;
 use SoapClient;
-use Larabookir\Gateway\PortAbstract;
-use Larabookir\Gateway\PortInterface;
+use Roocketir\BankGateway\PortAbstract;
+use Roocketir\BankGateway\Contracts\Port;
 
-class Saman extends PortAbstract implements PortInterface
+class Saman extends PortAbstract implements Port
 {
     /**
      *
@@ -27,7 +29,7 @@ class Saman extends PortAbstract implements PortInterface
     /**
      * {@inheritdoc}
      */
-    public function set($amount)
+    public function setPrice(Amount $amount)
     {
         $this->amount = $amount;
 
@@ -63,15 +65,15 @@ class Saman extends PortAbstract implements PortInterface
     public function redirect()
     {
         $main_data = [
-            'amount'        => $this->amount,
-            'merchant'      => $this->config->get('gateway.saman.merchant'),
+            'amount'        => $this->amount->getRiyal(),
+            'merchant'      => $this->config->get('bankgateway.saman.merchant'),
             'resNum'        => $this->transactionId(),
             'callBackUrl'   => $this->getCallback()
         ];
 
         $data = array_merge($main_data, $this->optional_data);
         
-        return \View::make('gateway::saman-redirector')->with($data);
+        return \View::make('bankgateway::saman-redirector')->with($data);
     }
 
     /**
@@ -104,7 +106,7 @@ class Saman extends PortAbstract implements PortInterface
     function getCallback()
     {
         if (!$this->callbackUrl)
-            $this->callbackUrl = $this->config->get('gateway.saman.callback-url');
+            $this->callbackUrl = $this->config->get('bankgateway.saman.callback-url');
 
         $url = $this->makeCallback($this->callbackUrl, ['transaction_id' => $this->transactionId()]);
 
@@ -148,9 +150,9 @@ class Saman extends PortAbstract implements PortInterface
     protected function verifyPayment()
     {
         $fields = array(
-            "merchantID" => $this->config->get('gateway.saman.merchant'),
+            "merchantID" => $this->config->get('bankgateway.saman.merchant'),
             "RefNum" => $this->refId,
-            "password" => $this->config->get('gateway.saman.password'),
+            "password" => $this->config->get('bankgateway.saman.password'),
         );
 
 
@@ -192,6 +194,4 @@ class Saman extends PortAbstract implements PortInterface
 
 
     }
-
-
 }

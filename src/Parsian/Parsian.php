@@ -1,13 +1,15 @@
 <?php
 
-namespace Larabookir\Gateway\Parsian;
+namespace Roocketir\BankGateway\Parsian;
 
 use Illuminate\Support\Facades\Input;
+use Roocketir\BankGateway\Amount;
+use Roocketir\BankGateway\Enum;
 use SoapClient;
-use Larabookir\Gateway\PortAbstract;
-use Larabookir\Gateway\PortInterface;
+use Roocketir\BankGateway\PortAbstract;
+use Roocketir\BankGateway\Contracts\Port;
 
-class Parsian extends PortAbstract implements PortInterface
+class Parsian extends PortAbstract implements Port
 {
 	/**
 	 * Url of parsian gateway web service
@@ -26,9 +28,9 @@ class Parsian extends PortAbstract implements PortInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function set($amount)
+	public function setPrice(Amount $amount)
 	{
-		$this->amount = intval($amount);
+		$this->amount = $amount;
 		return $this;
 	}
 
@@ -49,7 +51,7 @@ class Parsian extends PortAbstract implements PortInterface
 	{
 		$url = $this->gateUrl . $this->refId();
 
-		return \View::make('gateway::parsian-redirector')->with(compact('url'));
+		return \View::make('bankgateway::parsian-redirector')->with(compact('url'));
 	}
 
 	/**
@@ -81,7 +83,7 @@ class Parsian extends PortAbstract implements PortInterface
 	function getCallback()
 	{
 		if (!$this->callbackUrl)
-			$this->callbackUrl = $this->config->get('gateway.parsian.callback-url');
+			$this->callbackUrl = $this->config->get('bankgateway.parsian.callback-url');
 
 		return $this->makeCallback($this->callbackUrl, ['transaction_id' => $this->transactionId()]);
 	}
@@ -98,8 +100,8 @@ class Parsian extends PortAbstract implements PortInterface
 		$this->newTransaction();
 
 		$params = array(
-			'pin' => $this->config->get('gateway.parsian.pin'),
-			'amount' => $this->amount,
+			'pin' => $this->config->get('bankgateway.parsian.pin'),
+			'amount' => intval($this->amount->getRiyal()),
 			'orderId' => $this->transactionId(),
 			'callbackUrl' => $this->getCallback(),
 			'authority' => 0,
@@ -161,7 +163,7 @@ class Parsian extends PortAbstract implements PortInterface
 			throw new ParsianErrorException('تراکنشی یافت نشد', -1);
 
 		$params = array(
-			'pin' => $this->config->get('gateway.parsian.pin'),
+			'pin' => $this->config->get('bankgateway.parsian.pin'),
 			'authority' => $authority,
 			'status' => 1
 		);

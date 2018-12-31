@@ -1,11 +1,11 @@
 <?php
 
-namespace Larabookir\Gateway;
+namespace Roocketir\BankGateway;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 
-class GatewayServiceProviderLaravel5 extends ServiceProvider
+class BankGatewayServiceProvider extends ServiceProvider
 {
 	/**
 	 * Indicates if loading of the provider is deferred.
@@ -21,16 +21,16 @@ class GatewayServiceProviderLaravel5 extends ServiceProvider
 	 */
 	public function boot()
 	{
-        $config = __DIR__ . '/../config/gateway.php';
+        $config = __DIR__ . '/../config/bankgateway.php';
         $migrations = __DIR__ . '/../migrations/';
         $views = __DIR__ . '/../views/';
 
-        //php artisan vendor:publish --provider=Larabookir\Gateway\GatewayServiceProvider --tag=config
+        //php artisan vendor:publish --provider=Roocketir\BankGateway\GatewayServiceProvider --tag=config
         $this->publishes([
-            $config => config_path('gateway.php'),
+            $config => config_path('bankgateway.php'),
         ], 'config');
 
-        // php artisan vendor:publish --provider=Larabookir\Gateway\GatewayServiceProvider --tag=migrations
+        // php artisan vendor:publish --provider=Roocketir\BankGateway\GatewayServiceProvider --tag=migrations
         $this->publishes([
             $migrations => base_path('database/migrations')
         ], 'migrations');
@@ -45,14 +45,14 @@ class GatewayServiceProviderLaravel5 extends ServiceProvider
         }
 
 
-        $this->loadViewsFrom($views, 'gateway');
+        $this->loadViewsFrom($views, 'bankgateway');
 
-        // php artisan vendor:publish --provider=Larabookir\Gateway\GatewayServiceProvider --tag=views
+        // php artisan vendor:publish --provider=Roocketir\BankGateway\GatewayServiceProvider --tag=views
         $this->publishes([
-            $views => base_path('resources/views/vendor/gateway'),
+            $views => base_path('resources/views/vendor/bankgateway'),
         ], 'views');
 
-        //$this->mergeConfigFrom( $config,'gateway')
+        //$this->mergeConfigFrom( $config,'bankgateway')
 	}
 
 	/**
@@ -62,8 +62,8 @@ class GatewayServiceProviderLaravel5 extends ServiceProvider
 	 */
 	public function register()
 	{
-		$this->app->singleton('gateway', function () {
-			return new GatewayResolver();
+		$this->app->singleton('bankgateway', function () {
+			return new BankGatewayResolver();
 		});
 
 	}

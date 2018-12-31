@@ -1,13 +1,14 @@
 <?php
 
-namespace Larabookir\Gateway\Payline;
+namespace Roocketir\BankGateway\Payline;
 
 use Illuminate\Support\Facades\Input;
-use Larabookir\Gateway\Enum;
-use Larabookir\Gateway\PortAbstract;
-use Larabookir\Gateway\PortInterface;
+use Roocketir\BankGateway\Amount;
+use Roocketir\BankGateway\Enum;
+use Roocketir\BankGateway\PortAbstract;
+use Roocketir\BankGateway\Contracts\Port;
 
-class Payline extends PortAbstract implements PortInterface
+class Payline extends PortAbstract implements Port
 {
 	/**
 	 * Address of main CURL server
@@ -33,7 +34,7 @@ class Payline extends PortAbstract implements PortInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function set($amount)
+	public function setPrice(Amount $amount)
 	{
 		$this->amount = $amount;
 
@@ -88,7 +89,7 @@ class Payline extends PortAbstract implements PortInterface
 	function getCallback()
 	{
 		if (!$this->callbackUrl)
-			$this->callbackUrl = $this->config->get('gateway.payline.callback-url');
+			$this->callbackUrl = $this->config->get('bankgateway.payline.callback-url');
 
 		return urlencode($this->makeCallback($this->callbackUrl, ['transaction_id' => $this->transactionId()]));
 	}
@@ -105,8 +106,8 @@ class Payline extends PortAbstract implements PortInterface
 		$this->newTransaction();
 
 		$fields = array(
-			'api' => $this->config->get('gateway.payline.api'),
-			'amount' => $this->amount,
+			'api' => $this->config->get('bankgateway.payline.api'),
+			'amount' => $this->amount->getRiyal(),
 			'redirect' => $this->getCallback(),
 		);
 
@@ -164,7 +165,7 @@ class Payline extends PortAbstract implements PortInterface
 	protected function verifyPayment()
 	{
 		$fields = array(
-			'api' => $this->config->get('gateway.payline.api'),
+			'api' => $this->config->get('bankgateway.payline.api'),
 			'id_get' => $this->refId(),
 			'trans_id' => $this->trackingCode()
 		);

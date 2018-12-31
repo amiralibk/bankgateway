@@ -1,21 +1,12 @@
 <?php
 
-namespace Larabookir\Gateway;
+namespace Roocketir\BankGateway;
 
 class Enum
 {
-	const MELLAT = 'MELLAT';
-	const SADAD = 'SADAD';
-	const ZARINPAL = 'ZARINPAL';
-	const PAYLINE = 'PAYLINE';
-	const JAHANPAY = 'JAHANPAY';
-	const PARSIAN = 'PARSIAN';
-	const PASARGAD = 'PASARGAD';
-	const SAMAN = 'SAMAN';
-	const ASANPARDAKHT = 'ASANPARDAKHT';
-	const PAYPAL = 'PAYPAL';
-  	const PAYIR = 'PAYIR';
-	
+    const CURRENCY_IRT = 'IRT';
+    const CURRENCY_IRR = 'IRR';
+
 	/**
 	 * Status code for status field in poolport_transactions table
 	 */

@@ -1,6 +1,6 @@
 {
-  "name": "larabook/gateway",
-  "homepage": "https://github.com/larabook/gateway",
+  "name": "roocketir/bankgateway",
+  "homepage": "https://github.com/Hesammousavi/bankgateway",
   "description": "A Laravel package for connecting to all Iraninan payment  gateways",
   "keywords": [
     "laravel",
@@ -43,6 +43,10 @@
     {
       "name": "Amir Khorsandi",
       "email": "Khorsandi@me.com"
+    },
+    {
+      "name": "Hesam Mousavi",
+      "email": "hesammoousavi@gmail.com"
     }
   ],
   "require": {
@@ -51,18 +55,18 @@
   },
   "autoload": {
     "psr-4": {
-      "Larabookir\\Gateway\\": "src/",
-      "Larabookir\\Gateway\\Tests\\": "tests/"
+      "Roocketir\\BankGateway\\": "src/",
+      "Roocketir\\BankGateway\\Tests\\": "tests/"
     }
   },
   "minimum-stability": "dev",
   "extra": {
     "laravel": {
       "providers": [
-        "Larabookir\\Gateway\\GatewayServiceProvider"
+        "Roocketir\\BankGateway\\GatewayServiceProvider"
       ],
       "aliases": {
-        "Gateway": "Larabookir\\Gateway\\Gateway"
+        "BankGateway": "Roocketir\\BankGateway\\Gateway"
       }
     }
   }

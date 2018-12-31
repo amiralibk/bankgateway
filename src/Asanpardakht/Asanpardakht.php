@@ -1,13 +1,15 @@
 <?php
 
-namespace Larabookir\Gateway\Asanpardakht;
+namespace Roocketir\BankGateway\Asanpardakht;
 
 use Illuminate\Support\Facades\Input;
+use Roocketir\BankGateway\Amount;
+use Roocketir\BankGateway\Enum;
 use SoapClient;
-use Larabookir\Gateway\PortAbstract;
-use Larabookir\Gateway\PortInterface;
+use Roocketir\BankGateway\PortAbstract;
+use Roocketir\BankGateway\Contracts\Port;
 
-class Asanpardakht extends PortAbstract implements PortInterface
+class Asanpardakht extends PortAbstract implements Port
 {
     /**
      * Address of main SOAP server
@@ -19,7 +21,7 @@ class Asanpardakht extends PortAbstract implements PortInterface
     /**
      * {@inheritdoc}
      */
-    public function set($amount)
+    public function setPrice(Amount $amount)
     {
         $this->amount = $amount;
 
@@ -42,7 +44,7 @@ class Asanpardakht extends PortAbstract implements PortInterface
     public function redirect()
     {
 
-        return view('gateway::asan-pardakht-redirector')->with([
+        return view('bankgateway::asan-pardakht-redirector')->with([
             'refId' => $this->refId
         ]);
     }
@@ -76,7 +78,7 @@ class Asanpardakht extends PortAbstract implements PortInterface
     function getCallback()
     {
         if (!$this->callbackUrl)
-            $this->callbackUrl = $this->config->get('gateway.asanpardakht.callback-url');
+            $this->callbackUrl = $this->config->get('bankgateway.asanpardakht.callback-url');
 
         $url = $this->makeCallback($this->callbackUrl, ['transaction_id' => $this->transactionId()]);
 
@@ -94,10 +96,10 @@ class Asanpardakht extends PortAbstract implements PortInterface
     {
         $this->newTransaction();
 
-        $username = $this->config->get('gateway.asanpardakht.username');
-        $password = $this->config->get('gateway.asanpardakht.password');
+        $username = $this->config->get('bankgateway.asanpardakht.username');
+        $password = $this->config->get('bankgateway.asanpardakht.password');
         $orderId = $this->transactionId();
-        $price = $this->amount;
+        $price = $this->amount->getToman();
         $localDate = date("Ymd His");
         $additionalData = "";
         $callBackUrl = $this->getCallback();
@@ -105,7 +107,7 @@ class Asanpardakht extends PortAbstract implements PortInterface
 
         $encryptedRequest = $this->encrypt($req);
         $params = array(
-            'merchantConfigurationID' => $this->config->get('gateway.asanpardakht.merchantConfigId'),
+            'merchantConfigurationID' => $this->config->get('bankgateway.asanpardakht.merchantConfigId'),
             'encryptedRequest' => $encryptedRequest
         );
 
@@ -181,12 +183,12 @@ class Asanpardakht extends PortAbstract implements PortInterface
     protected function verifyAndSettlePayment()
     {
 
-        $username = $this->config->get('gateway.asanpardakht.username');
-        $password = $this->config->get('gateway.asanpardakht.password');
+        $username = $this->config->get('bankgateway.asanpardakht.username');
+        $password = $this->config->get('bankgateway.asanpardakht.password');
 
         $encryptedCredintials = $this->encrypt("{$username},{$password}");
         $params = array(
-            'merchantConfigurationID' => $this->config->get('gateway.asanpardakht.merchantConfigId'),
+            'merchantConfigurationID' => $this->config->get('bankgateway.asanpardakht.merchantConfigId'),
             'encryptedCredentials' => $encryptedCredintials,
             'payGateTranID' => $this->trackingCode
         );
@@ -239,8 +241,8 @@ class Asanpardakht extends PortAbstract implements PortInterface
     private function encrypt($string = "")
     {
 
-        $key = $this->config->get('gateway.asanpardakht.key');
-        $iv = $this->config->get('gateway.asanpardakht.iv');
+        $key = $this->config->get('bankgateway.asanpardakht.key');
+        $iv = $this->config->get('bankgateway.asanpardakht.iv');
 
         try {
 
@@ -268,8 +270,8 @@ class Asanpardakht extends PortAbstract implements PortInterface
      */
     private function decrypt($string = "")
     {
-        $key = $this->config->get('gateway.asanpardakht.key');
-        $iv = $this->config->get('gateway.asanpardakht.iv');
+        $key = $this->config->get('bankgateway.asanpardakht.key');
+        $iv = $this->config->get('bankgateway.asanpardakht.iv');
 
         try {
 
@@ -287,5 +289,4 @@ class Asanpardakht extends PortAbstract implements PortInterface
             return "";
         }
     }
-
 }

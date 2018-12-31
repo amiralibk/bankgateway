@@ -2,9 +2,9 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Larabookir\Gateway\PortAbstract;
-use Larabookir\Gateway\GatewayResolver;
-use Larabookir\Gateway\Enum;
+use Roocketir\BankGateway\PortAbstract;
+use Roocketir\BankGateway\BankGatewayResolver;
+use Roocketir\BankGateway\Enum;
 
 class CreateGatewayTransactionsTable extends Migration
 {
@@ -23,21 +23,13 @@ class CreateGatewayTransactionsTable extends Migration
 		Schema::create($this->getTable(), function (Blueprint $table) {
 			$table->engine = "innoDB";
 			$table->unsignedBigInteger('id', true);
-			$table->enum('port', [
-				Enum::MELLAT,
-				Enum::SADAD,
-				Enum::ZARINPAL,
-				Enum::PAYLINE,
-				Enum::JAHANPAY,
-				Enum::PARSIAN,
-				Enum::PASARGAD,
-				Enum::SAMAN,
-				Enum::ASANPARDAKHT,
-				Enum::PAYPAL,
-				Enum::PAYIR
-			]);
+			$table->string('port', 20);
 			$table->decimal('price', 15, 2);
-			$table->string('ref_id', 100)->nullable();
+            $table->enum('currency', [
+                Enum::CURRENCY_IRR,
+                Enum::CURRENCY_IRT
+            ]);
+            $table->string('ref_id', 100)->nullable();
 			$table->string('tracking_code', 50)->nullable();
 			$table->string('card_number', 50)->nullable();
 			$table->enum('status', [

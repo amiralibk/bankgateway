@@ -1,7 +1,7 @@
 <?php
 
-namespace Larabookir\Gateway\Parsian;
+namespace Roocketir\BankGateway\Parsian;
 
-use Larabookir\Gateway\Exceptions\BankException;
+use Roocketir\BankGateway\Exceptions\BankException;
 
 class ParsianErrorException extends BankException {}

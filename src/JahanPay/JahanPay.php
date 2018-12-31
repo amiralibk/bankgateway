@@ -1,14 +1,15 @@
 <?php
 
-namespace Larabookir\Gateway\JahanPay;
+namespace Roocketir\BankGateway\JahanPay;
 
 use Illuminate\Support\Facades\Input;
-use Larabookir\Gateway\Enum;
+use Roocketir\BankGateway\Amount;
+use Roocketir\BankGateway\Enum;
 use SoapClient;
-use Larabookir\Gateway\PortAbstract;
-use Larabookir\Gateway\PortInterface;
+use Roocketir\BankGateway\PortAbstract;
+use Roocketir\BankGateway\Contracts\Port;
 
-class JahanPay extends PortAbstract implements PortInterface
+class JahanPay extends PortAbstract implements Port
 {
     /**
      * Address of main SOAP server
@@ -27,9 +28,9 @@ class JahanPay extends PortAbstract implements PortInterface
     /**
      * {@inheritdoc}
      */
-    public function set($amount)
+    public function setPrice(Amount $amount)
     {
-        $this->amount = ($amount / 10);
+        $this->amount = $amount;
 
         return $this;
     }
@@ -82,7 +83,7 @@ class JahanPay extends PortAbstract implements PortInterface
     function getCallback()
     {
         if (!$this->callbackUrl)
-            $this->callbackUrl = $this->config->get('gateway.jahanpay.callback-url');
+            $this->callbackUrl = $this->config->get('bankgateway.jahanpay.callback-url');
 
         return $this->makeCallback($this->callbackUrl, ['transaction_id' => $this->transactionId()]);
     }
@@ -101,8 +102,8 @@ class JahanPay extends PortAbstract implements PortInterface
         try {
             $soap = new SoapClient($this->serverUrl);
             $response = $soap->requestpayment(
-                $this->config->get('gateway.jahanpay.api'),
-                $this->amount,
+                $this->config->get('bankgateway.jahanpay.api'),
+                $this->amount->getToman(),
                 $this->getCallback(),
                 $this->transactionId(),
                 ''
@@ -157,7 +158,7 @@ class JahanPay extends PortAbstract implements PortInterface
         try {
             $soap = new SoapClient($this->serverUrl);
             $response = $soap->verification(
-                $this->config->get('gateway.jahanpay.api'),
+                $this->config->get('bankgateway.jahanpay.api'),
                 $this->amount,
                 $this->refId
             );

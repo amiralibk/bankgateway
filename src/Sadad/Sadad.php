@@ -1,12 +1,13 @@
 <?php
 
-namespace Larabookir\Gateway\Sadad;
+namespace Roocketir\BankGateway\Sadad;
 
+use Roocketir\BankGateway\Amount;
 use SoapClient;
-use Larabookir\Gateway\PortAbstract;
-use Larabookir\Gateway\PortInterface;
+use Roocketir\BankGateway\PortAbstract;
+use Roocketir\BankGateway\Contracts\Port;
 
-class Sadad extends PortAbstract implements PortInterface
+class Sadad extends PortAbstract implements Port
 {
 	/**
 	 * Url of sadad gateway web service
@@ -26,9 +27,9 @@ class Sadad extends PortAbstract implements PortInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function set($amount)
+	public function setPrice(Amount $amount)
 	{
-		$this->amount = intval($amount);
+		$this->amount = $amount;
 
 		return $this;
 	}
@@ -50,7 +51,7 @@ class Sadad extends PortAbstract implements PortInterface
 	{
 		$form = $this->form;
 
-		return \View::make('gateway::sadad-redirector')->with(compact('form'));
+		return \View::make('bankgateway::sadad-redirector')->with(compact('form'));
 	}
 
 	/**
@@ -65,10 +66,11 @@ class Sadad extends PortAbstract implements PortInterface
 		return $this;
 	}
 
-	/**
-	 * Sets callback url
-	 * @param $url
-	 */
+    /**
+     * Sets callback url
+     * @param $url
+     * @return $this
+     */
 	function setCallback($url)
 	{
 		$this->callbackUrl = $url;
@@ -82,18 +84,17 @@ class Sadad extends PortAbstract implements PortInterface
 	function getCallback()
 	{
 		if (!$this->callbackUrl)
-			$this->callbackUrl = $this->config->get('gateway.sadad.callback-url');
+			$this->callbackUrl = $this->config->get('bankgateway.sadad.callback-url');
 
 		return $this->makeCallback($this->callbackUrl, ['transaction_id' => $this->transactionId()]);
 	}
 
-	/**
-	 * Send pay request to server
-	 *
-	 * @return void
-	 *
-	 * @throws SadadException
-	 */
+    /**
+     * Send pay request to server
+     * @return void
+     * @throws SadadException
+     * @throws \SoapFault
+     */
 	protected function sendPayRequest()
 	{
 		$this->newTransaction();
@@ -104,11 +105,11 @@ class Sadad extends PortAbstract implements PortInterface
 			$soap = new SoapClient($this->serverUrl);
 
 			$response = $soap->PaymentUtility(
-				$this->config->get('gateway.sadad.merchant'),
-				$this->amount,
+				$this->config->get('bankgateway.sadad.merchant'),
+                intval($this->amount->getRiyal()),
 				$this->transactionId(),
-				$this->config->get('gateway.sadad.transactionKey'),
-				$this->config->get('gateway.sadad.terminalId'),
+				$this->config->get('bankgateway.sadad.transactionKey'),
+				$this->config->get('bankgateway.sadad.terminalId'),
 				$this->getCallback()
 			);
 
@@ -142,9 +143,9 @@ class Sadad extends PortAbstract implements PortInterface
 
 			$result = $soap->CheckRequestStatusResult(
 				$this->transactionId(),
-				$this->config->get('gateway.sadad.merchant'),
-				$this->config->get('gateway.sadad.terminalId'),
-				$this->config->get('gateway.sadad.transactionKey'),
+				$this->config->get('bankgateway.sadad.merchant'),
+				$this->config->get('bankgateway.sadad.terminalId'),
+				$this->config->get('bankgateway.sadad.transactionKey'),
 				$this->refId(),
 				$this->amount
 			);
