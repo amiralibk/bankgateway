@@ -63,10 +63,10 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Roocketir\\BankGateway\\GatewayServiceProvider"
+        "Roocketir\\BankGateway\\BankGatewayServiceProvider"
       ],
       "aliases": {
-        "BankGateway": "Roocketir\\BankGateway\\Gateway"
+        "BankGateway": "Roocketir\\BankGateway\\BankGateway"
       }
     }
   }
