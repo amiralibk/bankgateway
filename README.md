@@ -27,7 +27,7 @@ Step 1:
 
 Run the Composer update comand
 
-        $ composer require hesammoousavi/bankgateway:3.*
+        $ composer require hesammoousavi/bankgateway
 
 Step 2:  
 
