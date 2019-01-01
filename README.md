@@ -11,8 +11,8 @@ Available Banks:
  4. PARSIAN
  5. PASARGAD
  6. ZARINPAL
- 8. ASAN PARDAKHT (**New**)
- 9. PAY.IR (**New**) (to use : new \Payir())
+ 8. ASAN PARDAKHT
+ 9. PAY.IR (to use : new \Payir())
 ----------
 
 
